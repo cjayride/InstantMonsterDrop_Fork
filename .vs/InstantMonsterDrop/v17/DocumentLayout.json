@@ -1,0 +1,87 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Administrator\\Downloads\\InstantMonsterDrop_Fork-main\\InstantMonsterDrop_Fork-main\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AB407E-A3BD-4A00-853B-1368EEC5CC30}|InstantMonsterDrop\\InstantMonsterDrop.csproj|c:\\users\\administrator\\downloads\\instantmonsterdrop_fork-main\\instantmonsterdrop_fork-main\\instantmonsterdrop\\instantmonsterdrop.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{B1AB407E-A3BD-4A00-853B-1368EEC5CC30}|InstantMonsterDrop\\InstantMonsterDrop.csproj|solutionrelative:instantmonsterdrop\\instantmonsterdrop.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Administrator\\Downloads\\InstantMonsterDrop_Fork-main\\InstantMonsterDrop_Fork-main\\valheim.targets||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:valheim.targets||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AB407E-A3BD-4A00-853B-1368EEC5CC30}|InstantMonsterDrop\\InstantMonsterDrop.csproj|c:\\users\\administrator\\downloads\\instantmonsterdrop_fork-main\\instantmonsterdrop_fork-main\\instantmonsterdrop\\bepinexplugin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B1AB407E-A3BD-4A00-853B-1368EEC5CC30}|InstantMonsterDrop\\InstantMonsterDrop.csproj|solutionrelative:instantmonsterdrop\\bepinexplugin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B1AB407E-A3BD-4A00-853B-1368EEC5CC30}|InstantMonsterDrop\\InstantMonsterDrop.csproj|c:\\users\\administrator\\downloads\\instantmonsterdrop_fork-main\\instantmonsterdrop_fork-main\\instantmonsterdrop\\instantmonsterdrop.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|",
+      "RelativeMoniker": "D:0:0:{B1AB407E-A3BD-4A00-853B-1368EEC5CC30}|InstantMonsterDrop\\InstantMonsterDrop.csproj|solutionrelative:instantmonsterdrop\\instantmonsterdrop.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "valheim.targets",
+              "DocumentMoniker": "C:\\Users\\Administrator\\Downloads\\InstantMonsterDrop_Fork-main\\InstantMonsterDrop_Fork-main\\valheim.targets",
+              "RelativeDocumentMoniker": "valheim.targets",
+              "ToolTip": "C:\\Users\\Administrator\\Downloads\\InstantMonsterDrop_Fork-main\\InstantMonsterDrop_Fork-main\\valheim.targets",
+              "RelativeToolTip": "valheim.targets",
+              "ViewState": "AQIAABIAAAAAAAAAAADgvykAAACFAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003801|",
+              "WhenOpened": "2024-05-04T21:02:46.174Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "InstantMonsterDrop",
+              "DocumentMoniker": "C:\\Users\\Administrator\\Downloads\\InstantMonsterDrop_Fork-main\\InstantMonsterDrop_Fork-main\\InstantMonsterDrop\\InstantMonsterDrop.csproj",
+              "RelativeDocumentMoniker": "InstantMonsterDrop\\InstantMonsterDrop.csproj",
+              "ToolTip": "C:\\Users\\Administrator\\Downloads\\InstantMonsterDrop_Fork-main\\InstantMonsterDrop_Fork-main\\InstantMonsterDrop\\InstantMonsterDrop.csproj",
+              "RelativeToolTip": "InstantMonsterDrop\\InstantMonsterDrop.csproj",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2024-05-04T20:45:57.194Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "InstantMonsterDrop.csproj",
+              "DocumentMoniker": "C:\\Users\\Administrator\\Downloads\\InstantMonsterDrop_Fork-main\\InstantMonsterDrop_Fork-main\\InstantMonsterDrop\\InstantMonsterDrop.csproj",
+              "RelativeDocumentMoniker": "InstantMonsterDrop\\InstantMonsterDrop.csproj",
+              "ToolTip": "C:\\Users\\Administrator\\Downloads\\InstantMonsterDrop_Fork-main\\InstantMonsterDrop_Fork-main\\InstantMonsterDrop\\InstantMonsterDrop.csproj",
+              "RelativeToolTip": "InstantMonsterDrop\\InstantMonsterDrop.csproj",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAwAAAAmAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2024-05-04T20:41:21.9Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "BepInExPlugin.cs",
+              "DocumentMoniker": "C:\\Users\\Administrator\\Downloads\\InstantMonsterDrop_Fork-main\\InstantMonsterDrop_Fork-main\\InstantMonsterDrop\\BepInExPlugin.cs",
+              "RelativeDocumentMoniker": "InstantMonsterDrop\\BepInExPlugin.cs",
+              "ToolTip": "C:\\Users\\Administrator\\Downloads\\InstantMonsterDrop_Fork-main\\InstantMonsterDrop_Fork-main\\InstantMonsterDrop\\BepInExPlugin.cs",
+              "RelativeToolTip": "InstantMonsterDrop\\BepInExPlugin.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAwAAAAtAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-05-04T20:39:29.21Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

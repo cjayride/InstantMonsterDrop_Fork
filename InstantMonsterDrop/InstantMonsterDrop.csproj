@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net40</TargetFramework>
+    <AssemblyName>InstantMonsterLootDrop</AssemblyName>
+    <Description>InstantMonsterDrop_Fork</Description>
+    <Version>0.6.0</Version>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>latest</LangVersion>
+    <RestoreAdditionalProjectSources>
+      https://api.nuget.org/v3/index.json;
+      https://nuget.bepinex.dev/v3/index.json
+    </RestoreAdditionalProjectSources>
+    <RootNamespace>InstantDrop</RootNamespace>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+  <Import Project="$(SolutionDir)\valheim.targets" />
+</Project>
