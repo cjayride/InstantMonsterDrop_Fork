@@ -1,3 +1,7 @@
 InstantMonsterDrop/bin/**
 InstantMonsterDrop/obj/**
 InstantMonsterDrop.zip
+dist/
+cjayride-InstantMonsterLootDrop-*.zip
+_dump_api.*
+_api_dump*.txt

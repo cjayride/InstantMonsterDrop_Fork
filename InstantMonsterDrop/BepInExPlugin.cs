@@ -1,4 +1,4 @@
-﻿﻿using BepInEx;
+﻿using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
 using System.Collections;
@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace InstantMonsterDrop
 {
-    [BepInPlugin("cjayride.InstantMonsterDrop", "Instant Monster Drop", "0.6.0")]
+    [BepInPlugin("cjayride.InstantMonsterDrop", "Instant Monster Drop", "0.7.0")]
     public class BepInExPlugin : BaseUnityPlugin
     {
         private static BepInExPlugin context;
@@ -21,7 +21,7 @@ namespace InstantMonsterDrop
             modEnabled = Config.Bind<bool>("General", "Enabled", true, "Enable this mod");
             dropDelay = Config.Bind<float>("General", "DropDelay", 0.01f, "Delay before dropping loot");
             destroyDelay = Config.Bind<float>("General", "DestroyDelay", 0.05f, "Delay before destroying ragdoll");
-            Config.Save(); 
+            Config.Save();
             if (!modEnabled.Value)
                 return;
 
@@ -38,11 +38,11 @@ namespace InstantMonsterDrop
                 context.StartCoroutine(DropNow(__instance, ___m_nview, ___m_removeEffect));
             }
         }
-        
+
         [HarmonyPatch(typeof(Ragdoll), "DestroyNow")]
         static class Ragdoll_DestroyNow_Patch
         {
-            static bool Prefix(Ragdoll __instance)
+            static bool Prefix()
             {
                 return !modEnabled.Value;
             }
@@ -50,7 +50,7 @@ namespace InstantMonsterDrop
 
         private static IEnumerator DropNow(Ragdoll ragdoll, ZNetView nview, EffectList removeEffect)
         {
-            if(dropDelay.Value < 0)
+            if (dropDelay.Value < 0)
             {
                 context.StartCoroutine(DestroyNow(ragdoll, nview, removeEffect));
                 yield break;
@@ -61,10 +61,9 @@ namespace InstantMonsterDrop
             if (!modEnabled.Value)
                 yield break;
 
-            if (!nview.IsValid() || !nview.IsOwner())
-            {
+            if (ragdoll == null || nview == null || !nview.IsValid() || !nview.IsOwner())
                 yield break;
-            }
+
             Vector3 averageBodyPosition = ragdoll.GetAverageBodyPosition();
             Traverse.Create(ragdoll).Method("SpawnLoot", new object[] { averageBodyPosition }).GetValue();
             context.StartCoroutine(DestroyNow(ragdoll, nview, removeEffect));
@@ -77,13 +76,15 @@ namespace InstantMonsterDrop
             if (!modEnabled.Value)
                 yield break;
 
-            if (!nview.IsValid() || !nview.IsOwner())
-            {
+            if (ragdoll == null || nview == null || !nview.IsValid() || !nview.IsOwner())
                 yield break;
-            }
+
             Vector3 averageBodyPosition = ragdoll.GetAverageBodyPosition();
-            m_removeEffect.Create(averageBodyPosition, Quaternion.identity, null, 1f, -1);
-            ZNetScene.instance.Destroy(ragdoll.gameObject);
+            if (m_removeEffect != null)
+                m_removeEffect.Create(averageBodyPosition, Quaternion.identity, null, 1f, -1, ZDOID.None);
+
+            if (ZNetScene.instance)
+                ZNetScene.instance.Destroy(ragdoll.gameObject);
         }
     }
 }
