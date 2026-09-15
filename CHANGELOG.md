@@ -1,3 +1,7 @@
+# v0.7.1
+- Hold auto-pickup for 2 seconds on instant monster loot so drops stay visible on the ground
+- New config option AutoPickupDelay (set to 0 for vanilla auto-pickup)
+
 # v0.7.0
 - Updated for Valheim 1.0 (Unity 6)
 - Verified in-game on the live 1.0 client

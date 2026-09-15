@@ -10,7 +10,7 @@ A fork of [aedenthorn/InstantMonsterDrop](https://github.com/aedenthorn/ValheimM
 
 A very simple mod, it just removes the delay on monsters going poof and dropping their loot. Works on animals, monsters, etc.
 
-Optionally, you can set separate custom delays for both loot drop and ragdoll destruction by editing the config file.
+Optionally, you can set separate custom delays for loot drop, ragdoll destruction, and auto-pickup by editing the config file. **AutoPickupDelay** (default 2 seconds) keeps loot on the ground long enough to see it before it can be vacuumed into your inventory. You can still pick it up with the use key immediately.
 
 ## **Configuration**
 

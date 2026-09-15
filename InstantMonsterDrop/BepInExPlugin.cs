@@ -7,13 +7,15 @@ using UnityEngine;
 
 namespace InstantMonsterDrop
 {
-    [BepInPlugin("cjayride.InstantMonsterDrop", "Instant Monster Drop", "0.7.0")]
+    [BepInPlugin("cjayride.InstantMonsterDrop", "Instant Monster Drop", "0.7.1")]
     public class BepInExPlugin : BaseUnityPlugin
     {
         private static BepInExPlugin context;
         private static ConfigEntry<bool> modEnabled;
         private static ConfigEntry<float> dropDelay;
         private static ConfigEntry<float> destroyDelay;
+        private static ConfigEntry<float> autoPickupDelay;
+        private static bool spawningLoot;
 
         private void Awake()
         {
@@ -21,6 +23,7 @@ namespace InstantMonsterDrop
             modEnabled = Config.Bind<bool>("General", "Enabled", true, "Enable this mod");
             dropDelay = Config.Bind<float>("General", "DropDelay", 0.01f, "Delay before dropping loot");
             destroyDelay = Config.Bind<float>("General", "DestroyDelay", 0.05f, "Delay before destroying ragdoll");
+            autoPickupDelay = Config.Bind<float>("General", "AutoPickupDelay", 2f, "Seconds before dropped monster loot can be auto-picked up. Set to 0 for vanilla auto-pickup.");
             Config.Save();
             if (!modEnabled.Value)
                 return;
@@ -48,6 +51,19 @@ namespace InstantMonsterDrop
             }
         }
 
+        [HarmonyPatch(typeof(ItemDrop), "Awake")]
+        static class ItemDrop_Awake_Patch
+        {
+            static void Postfix(ItemDrop __instance)
+            {
+                if (!spawningLoot || autoPickupDelay.Value <= 0f || !__instance.m_autoPickup)
+                    return;
+
+                __instance.m_autoPickup = false;
+                context.StartCoroutine(EnableAutoPickupLater(__instance, autoPickupDelay.Value));
+            }
+        }
+
         private static IEnumerator DropNow(Ragdoll ragdoll, ZNetView nview, EffectList removeEffect)
         {
             if (dropDelay.Value < 0)
@@ -65,7 +81,15 @@ namespace InstantMonsterDrop
                 yield break;
 
             Vector3 averageBodyPosition = ragdoll.GetAverageBodyPosition();
-            Traverse.Create(ragdoll).Method("SpawnLoot", new object[] { averageBodyPosition }).GetValue();
+            spawningLoot = true;
+            try
+            {
+                Traverse.Create(ragdoll).Method("SpawnLoot", new object[] { averageBodyPosition }).GetValue();
+            }
+            finally
+            {
+                spawningLoot = false;
+            }
             context.StartCoroutine(DestroyNow(ragdoll, nview, removeEffect));
         }
 
@@ -85,6 +109,13 @@ namespace InstantMonsterDrop
 
             if (ZNetScene.instance)
                 ZNetScene.instance.Destroy(ragdoll.gameObject);
+        }
+
+        private static IEnumerator EnableAutoPickupLater(ItemDrop drop, float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            if (drop != null)
+                drop.m_autoPickup = true;
         }
     }
 }
