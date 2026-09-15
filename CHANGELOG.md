@@ -1,3 +1,6 @@
+# v0.7.2
+- Version bump to republish on Thunderstore and Hexium (same as 0.7.1)
+
 # v0.7.1
 - Hold auto-pickup for 2 seconds on instant monster loot so drops stay visible on the ground
 - New config option AutoPickupDelay (set to 0 for vanilla auto-pickup)

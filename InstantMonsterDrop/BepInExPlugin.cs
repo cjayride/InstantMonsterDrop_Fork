@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace InstantMonsterDrop
 {
-    [BepInPlugin("cjayride.InstantMonsterDrop", "Instant Monster Drop", "0.7.1")]
+    [BepInPlugin("cjayride.InstantMonsterDrop", "Instant Monster Drop", "0.7.2")]
     public class BepInExPlugin : BaseUnityPlugin
     {
         private static BepInExPlugin context;
