@@ -1,3 +1,9 @@
+# v0.8.0
+- InstantMonsterLootDrop is now a loot-flow overhaul, not only an instant corpse poof
+- DropDelay default 0.05, DestroyDelay default 60, AutoPickupDelay default 1, AutoPickupRange 3.5m
+- Stacked loot notification window (vanilla one-at-a-time messages disabled while it is on)
+- Notification size, opacity, linger, font size, corner anchor, and on/off are all configurable
+
 # v0.7.2
 - Version bump to republish on Thunderstore and Hexium (same as 0.7.1)
 

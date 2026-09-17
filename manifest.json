@@ -1,8 +1,8 @@
 {
     "name": "InstantMonsterLootDrop",
-    "version_number": "0.7.2",
+    "version_number": "0.8.0",
     "website_url": "https://github.com/cjayride/InstantMonsterDrop_Fork",
-    "description": "Fork of aedenthorn/InstantMonsterDrop. Monsters drop loot and despawn immediately. Updated for Valheim 1.0.",
+    "description": "Loot-flow overhaul for Valheim 1.0: instant drops, 3.5m auto-pickup, lingering bodies, and a stacked loot notification window.",
     "dependencies": [
         "denikson-BepInExPack_Valheim-5.4.2350"
     ]
