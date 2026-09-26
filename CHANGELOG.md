@@ -1,3 +1,13 @@
+# v0.8.2
+- Loot window borders are off by default; enable ShowBorders if you want them
+- Text outline plus configurable name/count/outline colors for readability
+- Amount column grows with font size and window width so triple-digit stacks are not clipped
+- Ragdoll cleanup retries ownership so leftover bodies are less likely to persist
+- Console command `imd_cleanup` force-removes leftover corpses
+
+# v0.8.1
+- AutoPickupRange default is now 2.5 meters
+
 # v0.8.0
 - InstantMonsterLootDrop is now a loot-flow overhaul, not only an instant corpse poof
 - DropDelay default 0.05, DestroyDelay default 60, AutoPickupDelay default 1, AutoPickupRange 3.5m

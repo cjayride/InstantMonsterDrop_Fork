@@ -151,15 +151,19 @@ namespace InstantMonsterDrop
             Rect window = new Rect(x, y, width, height);
             float opacity = BepInExPlugin.NotificationOpacity * panelAlpha;
             bool fromRight = BepInExPlugin.Anchor == NotificationAnchor.BottomRight || BepInExPlugin.Anchor == NotificationAnchor.TopRight;
+            float amountWidth = AmountColumnWidth(width);
 
             Color old = GUI.color;
             GUI.color = new Color(0.04f, 0.05f, 0.06f, opacity);
             GUI.DrawTexture(window, pixel);
-            GUI.color = new Color(0.82f, 0.68f, 0.32f, Mathf.Min(1f, opacity + 0.12f));
-            float barX = fromRight ? window.xMax - 3f : window.x;
-            GUI.DrawTexture(new Rect(barX, window.y, 3f, window.height), pixel);
-            GUI.color = new Color(1f, 1f, 1f, 0.1f * panelAlpha);
-            GUI.DrawTexture(new Rect(window.x, window.y, window.width, 1f), pixel);
+            if (BepInExPlugin.ShowBorders)
+            {
+                GUI.color = new Color(0.82f, 0.68f, 0.32f, Mathf.Min(1f, opacity + 0.12f));
+                float barX = fromRight ? window.xMax - 3f : window.x;
+                GUI.DrawTexture(new Rect(barX, window.y, 3f, window.height), pixel);
+                GUI.color = new Color(1f, 1f, 1f, 0.1f * panelAlpha);
+                GUI.DrawTexture(new Rect(window.x, window.y, window.width, 1f), pixel);
+            }
 
             float lineHeight = LineHeight;
             float lifetime = BepInExPlugin.NotificationLinger;
@@ -192,15 +196,42 @@ namespace InstantMonsterDrop
                 }
 
                 float iconPad = line.Icon != null ? lineHeight : 4f;
-                Rect nameRect = new Rect(row.x + iconPad, row.y, row.width - iconPad - 52f, lineHeight);
-                Rect amountRect = new Rect(row.x + row.width - 52f, row.y, 48f, lineHeight);
-                nameStyle.normal.textColor = new Color(0.95f, 0.92f, 0.82f, fade);
-                amountStyle.normal.textColor = new Color(0.92f, 0.78f, 0.38f, fade);
-                GUI.Label(nameRect, line.Name, nameStyle);
-                GUI.Label(amountRect, "x" + line.Amount, amountStyle);
+                Rect nameRect = new Rect(row.x + iconPad, row.y, Mathf.Max(20f, row.width - iconPad - amountWidth - 4f), lineHeight);
+                Rect amountRect = new Rect(row.x + row.width - amountWidth, row.y, amountWidth, lineHeight);
+                Color nameColor = BepInExPlugin.TextColor;
+                Color countColor = BepInExPlugin.AmountColor;
+                nameColor.a *= fade;
+                countColor.a *= fade;
+                DrawLabel(nameRect, line.Name, nameStyle, nameColor, fade);
+                DrawLabel(amountRect, "x" + line.Amount, amountStyle, countColor, fade);
             }
             GUI.EndGroup();
             GUI.color = old;
+        }
+
+        private static float AmountColumnWidth(float windowWidth)
+        {
+            float fromFont = BepInExPlugin.NotificationFontSize * 3.4f + 16f;
+            float fromWindow = windowWidth * 0.28f;
+            return Mathf.Clamp(Mathf.Max(fromFont, fromWindow), 56f, windowWidth * 0.45f);
+        }
+
+        private void DrawLabel(Rect rect, string text, GUIStyle style, Color color, float fade)
+        {
+            if (BepInExPlugin.TextOutline)
+            {
+                Color outline = BepInExPlugin.OutlineColor;
+                outline.a *= fade;
+                style.normal.textColor = outline;
+                float o = Mathf.Max(1f, BepInExPlugin.NotificationFontSize / 14f);
+                GUI.Label(new Rect(rect.x - o, rect.y, rect.width, rect.height), text, style);
+                GUI.Label(new Rect(rect.x + o, rect.y, rect.width, rect.height), text, style);
+                GUI.Label(new Rect(rect.x, rect.y - o, rect.width, rect.height), text, style);
+                GUI.Label(new Rect(rect.x, rect.y + o, rect.width, rect.height), text, style);
+            }
+
+            style.normal.textColor = color;
+            GUI.Label(rect, text, style);
         }
 
         private static void GetWindowRect(float width, float height, out float x, out float y)
@@ -251,7 +282,7 @@ namespace InstantMonsterDrop
                 fontSize = fontSize,
                 fontStyle = FontStyle.Bold,
                 alignment = TextAnchor.MiddleRight,
-                clipping = TextClipping.Clip,
+                clipping = TextClipping.Overflow,
                 wordWrap = false
             };
         }
