@@ -16,7 +16,7 @@ namespace InstantMonsterDrop
         TopLeft
     }
 
-    [BepInPlugin("cjayride.InstantMonsterDrop", "Instant Monster Drop", "0.8.2")]
+    [BepInPlugin("cjayride.InstantMonsterDrop", "Instant Monster Drop", "0.8.3")]
     public class BepInExPlugin : BaseUnityPlugin
     {
         internal const string LootedKey = "IMD_Looted";

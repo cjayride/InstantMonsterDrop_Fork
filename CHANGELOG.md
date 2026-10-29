@@ -1,3 +1,7 @@
+# v0.8.3
+- Verified against Valheim 1.0.21 (Release build, Steam build 26249040).
+- BepInEx dependency set to `denikson-BepInExPack_Valheim-5.4.2360`.
+
 # v0.8.2
 - Loot window borders are off by default; enable ShowBorders if you want them
 - Text outline plus configurable name/count/outline colors for readability

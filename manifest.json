@@ -1,9 +1,9 @@
 {
     "name": "InstantMonsterLootDrop",
-    "version_number": "0.8.2",
+    "version_number": "0.8.3",
     "website_url": "https://github.com/cjayride/InstantMonsterDrop_Fork",
     "description": "Loot-flow overhaul for Valheim 1.0: instant drops, 2.5m auto-pickup, lingering bodies, and a stacked loot notification window.",
     "dependencies": [
-        "denikson-BepInExPack_Valheim-5.4.2350"
+        "denikson-BepInExPack_Valheim-5.4.2360"
     ]
 }
