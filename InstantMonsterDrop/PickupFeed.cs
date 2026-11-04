@@ -36,6 +36,7 @@ namespace InstantMonsterDrop
             pixel.SetPixel(0, 0, Color.white);
             pixel.Apply();
             pixel.hideFlags = HideFlags.HideAndDontSave;
+            enabled = false;
         }
 
         private void OnDestroy()
@@ -52,6 +53,7 @@ namespace InstantMonsterDrop
                 return;
             if (item == null || item.m_shared == null || amount <= 0)
                 return;
+            enabled = true;
 
             string name = item.m_shared.m_name;
             if (Localization.instance != null)
@@ -130,6 +132,8 @@ namespace InstantMonsterDrop
 
             float target = lines.Count > 0 ? 1f : 0f;
             panelAlpha = Mathf.MoveTowards(panelAlpha, target, dt * 5f);
+            if (lines.Count == 0 && panelAlpha <= 0.01f)
+                enabled = false;
         }
 
         private void OnGUI()

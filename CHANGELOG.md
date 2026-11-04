@@ -1,3 +1,10 @@
+# v0.8.4
+- Rechecked against Valheim 1.0.21 (Steam build 26249040); Ragdoll.SpawnLoot, DestroyNow, Player.AutoPickup, and EffectList.Create still match
+- Pickup range is applied on spawn and config change instead of every physics tick
+- Loot window disables itself when idle so IMGUI OnGUI is not running every frame
+- Cached SpawnLoot / ragdoll field lookups; skip config rewrite on plugin load
+- Dedicated / batch-mode servers skip the loot HUD component
+
 # v0.8.3
 - Verified against Valheim 1.0.21 (Release build, Steam build 26249040).
 - BepInEx dependency set to `denikson-BepInExPack_Valheim-5.4.2360`.

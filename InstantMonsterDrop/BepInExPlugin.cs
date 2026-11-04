@@ -16,10 +16,14 @@ namespace InstantMonsterDrop
         TopLeft
     }
 
-    [BepInPlugin("cjayride.InstantMonsterDrop", "Instant Monster Drop", "0.8.3")]
+    [BepInPlugin("cjayride.InstantMonsterDrop", "Instant Monster Drop", "0.8.4")]
     public class BepInExPlugin : BaseUnityPlugin
     {
         internal const string LootedKey = "IMD_Looted";
+
+        private static readonly MethodInfo spawnLootMethod = AccessTools.Method(typeof(Ragdoll), "SpawnLoot", new[] { typeof(Vector3) });
+        private static readonly FieldInfo removeEffectField = AccessTools.Field(typeof(Ragdoll), "m_removeEffect");
+        private static readonly object[] spawnLootArgs = new object[1];
 
         private static BepInExPlugin context;
         private static ConfigEntry<bool> modEnabled;
@@ -45,21 +49,21 @@ namespace InstantMonsterDrop
         private static bool commandsRegistered;
         private static readonly HashSet<int> scheduledRagdolls = new HashSet<int>();
 
-        internal static bool ModEnabled => modEnabled != null && modEnabled.Value;
-        internal static bool NotificationEnabled => notificationEnabled == null || notificationEnabled.Value;
-        internal static int NotificationX => notificationX != null ? notificationX.Value : 20;
-        internal static int NotificationY => notificationY != null ? notificationY.Value : 20;
-        internal static int NotificationWidth => notificationWidth != null ? Mathf.Max(80, notificationWidth.Value) : 250;
-        internal static int NotificationHeight => notificationHeight != null ? Mathf.Max(40, notificationHeight.Value) : 120;
-        internal static float NotificationOpacity => notificationOpacity != null ? Mathf.Clamp01(notificationOpacity.Value) : 0.72f;
-        internal static float NotificationLinger => notificationLinger != null ? Mathf.Max(0.5f, notificationLinger.Value) : 8f;
-        internal static int NotificationFontSize => notificationFontSize != null ? Mathf.Clamp(notificationFontSize.Value, 8, 48) : 15;
-        internal static NotificationAnchor Anchor => notificationAnchor != null ? notificationAnchor.Value : NotificationAnchor.BottomRight;
-        internal static bool ShowBorders => notificationShowBorders != null && notificationShowBorders.Value;
-        internal static bool TextOutline => notificationTextOutline == null || notificationTextOutline.Value;
-        internal static Color TextColor => notificationTextColor != null ? notificationTextColor.Value : Color.white;
-        internal static Color AmountColor => notificationAmountColor != null ? notificationAmountColor.Value : new Color(0.95f, 0.9f, 0.75f);
-        internal static Color OutlineColor => notificationOutlineColor != null ? notificationOutlineColor.Value : Color.black;
+        internal static bool ModEnabled;
+        internal static bool NotificationEnabled = true;
+        internal static int NotificationX = 20;
+        internal static int NotificationY = 20;
+        internal static int NotificationWidth = 250;
+        internal static int NotificationHeight = 120;
+        internal static float NotificationOpacity = 0.72f;
+        internal static float NotificationLinger = 8f;
+        internal static int NotificationFontSize = 15;
+        internal static NotificationAnchor Anchor = NotificationAnchor.BottomRight;
+        internal static bool ShowBorders;
+        internal static bool TextOutline = true;
+        internal static Color TextColor = Color.white;
+        internal static Color AmountColor = new Color(0.95f, 0.9f, 0.75f);
+        internal static Color OutlineColor = Color.black;
 
         private void Awake()
         {
@@ -84,12 +88,68 @@ namespace InstantMonsterDrop
             notificationTextColor = Config.Bind<Color>("Notification", "TextColor", Color.white, "Item name color");
             notificationAmountColor = Config.Bind<Color>("Notification", "AmountColor", new Color(0.95f, 0.9f, 0.75f), "Item count color");
             notificationOutlineColor = Config.Bind<Color>("Notification", "OutlineColor", Color.black, "Text outline color");
-            Config.Save();
+
+            CacheSettings();
+            modEnabled.SettingChanged += OnSettingsChanged;
+            autoPickupRange.SettingChanged += OnPickupRangeChanged;
+            notificationEnabled.SettingChanged += OnSettingsChanged;
+            notificationAnchor.SettingChanged += OnSettingsChanged;
+            notificationX.SettingChanged += OnSettingsChanged;
+            notificationY.SettingChanged += OnSettingsChanged;
+            notificationWidth.SettingChanged += OnSettingsChanged;
+            notificationHeight.SettingChanged += OnSettingsChanged;
+            notificationOpacity.SettingChanged += OnSettingsChanged;
+            notificationLinger.SettingChanged += OnSettingsChanged;
+            notificationFontSize.SettingChanged += OnSettingsChanged;
+            notificationShowBorders.SettingChanged += OnSettingsChanged;
+            notificationTextOutline.SettingChanged += OnSettingsChanged;
+            notificationTextColor.SettingChanged += OnSettingsChanged;
+            notificationAmountColor.SettingChanged += OnSettingsChanged;
+            notificationOutlineColor.SettingChanged += OnSettingsChanged;
+
             if (!modEnabled.Value)
                 return;
 
-            gameObject.AddComponent<PickupFeed>();
+            if (!Application.isBatchMode)
+                gameObject.AddComponent<PickupFeed>();
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), null);
+        }
+
+        private static void OnSettingsChanged(object sender, System.EventArgs e)
+        {
+            CacheSettings();
+        }
+
+        private static void OnPickupRangeChanged(object sender, System.EventArgs e)
+        {
+            ApplyPickupRange();
+        }
+
+        private static void CacheSettings()
+        {
+            ModEnabled = modEnabled != null && modEnabled.Value;
+            NotificationEnabled = notificationEnabled == null || notificationEnabled.Value;
+            NotificationX = notificationX != null ? notificationX.Value : 20;
+            NotificationY = notificationY != null ? notificationY.Value : 20;
+            NotificationWidth = notificationWidth != null ? Mathf.Max(80, notificationWidth.Value) : 250;
+            NotificationHeight = notificationHeight != null ? Mathf.Max(40, notificationHeight.Value) : 120;
+            NotificationOpacity = notificationOpacity != null ? Mathf.Clamp01(notificationOpacity.Value) : 0.72f;
+            NotificationLinger = notificationLinger != null ? Mathf.Max(0.5f, notificationLinger.Value) : 8f;
+            NotificationFontSize = notificationFontSize != null ? Mathf.Clamp(notificationFontSize.Value, 8, 48) : 15;
+            Anchor = notificationAnchor != null ? notificationAnchor.Value : NotificationAnchor.BottomRight;
+            ShowBorders = notificationShowBorders != null && notificationShowBorders.Value;
+            TextOutline = notificationTextOutline == null || notificationTextOutline.Value;
+            TextColor = notificationTextColor != null ? notificationTextColor.Value : Color.white;
+            AmountColor = notificationAmountColor != null ? notificationAmountColor.Value : new Color(0.95f, 0.9f, 0.75f);
+            OutlineColor = notificationOutlineColor != null ? notificationOutlineColor.Value : Color.black;
+        }
+
+        private static void ApplyPickupRange()
+        {
+            Player player = Player.m_localPlayer;
+            if (player == null || !ModEnabled)
+                return;
+            player.m_autoPickupRange = autoPickupRange.Value;
         }
 
         [HarmonyPatch(typeof(Terminal), "InitTerminal")]
@@ -127,7 +187,7 @@ namespace InstantMonsterDrop
         {
             static bool Prefix()
             {
-                return !modEnabled.Value;
+                return !ModEnabled;
             }
         }
 
@@ -144,24 +204,14 @@ namespace InstantMonsterDrop
             }
         }
 
-        [HarmonyPatch(typeof(Player), "AutoPickup")]
-        static class Player_AutoPickup_Patch
-        {
-            static void Prefix(Player __instance)
-            {
-                if (!modEnabled.Value || __instance != Player.m_localPlayer)
-                    return;
-                __instance.m_autoPickupRange = autoPickupRange.Value;
-            }
-        }
-
         [HarmonyPatch(typeof(Player), "OnSpawned")]
         static class Player_OnSpawned_Patch
         {
             static void Postfix(Player __instance)
             {
-                if (!modEnabled.Value || __instance != Player.m_localPlayer)
+                if (!ModEnabled || __instance != Player.m_localPlayer)
                     return;
+                ApplyPickupRange();
                 context.StartCoroutine(SweepLoadedRagdolls());
             }
         }
@@ -171,7 +221,7 @@ namespace InstantMonsterDrop
         {
             static bool Prefix(Character __instance, ItemDrop.ItemData item, int amount)
             {
-                if (!modEnabled.Value || !NotificationEnabled || __instance != Player.m_localPlayer)
+                if (!ModEnabled || !NotificationEnabled || __instance != Player.m_localPlayer)
                     return true;
                 if (PickupFeed.Instance != null)
                     PickupFeed.Instance.Add(item, amount);
@@ -213,7 +263,7 @@ namespace InstantMonsterDrop
         private static IEnumerator SweepLoadedRagdolls()
         {
             yield return new WaitForSeconds(2f);
-            if (!modEnabled.Value)
+            if (!ModEnabled)
                 yield break;
             Ragdoll[] ragdolls = FindObjectsByType<Ragdoll>(FindObjectsSortMode.None);
             for (int i = 0; i < ragdolls.Length; i++)
@@ -222,7 +272,7 @@ namespace InstantMonsterDrop
                 if (ragdoll == null)
                     continue;
                 ZNetView nview = ragdoll.GetComponent<ZNetView>();
-                EffectList removeEffect = Traverse.Create(ragdoll).Field("m_removeEffect").GetValue<EffectList>();
+                EffectList removeEffect = removeEffectField != null ? removeEffectField.GetValue(ragdoll) as EffectList : null;
                 ScheduleRagdoll(ragdoll, nview, removeEffect);
             }
         }
@@ -232,24 +282,26 @@ namespace InstantMonsterDrop
             if (dropDelay.Value >= 0)
                 yield return new WaitForSeconds(dropDelay.Value);
 
-            if (!modEnabled.Value)
+            if (!ModEnabled)
             {
                 scheduledRagdolls.Remove(id);
                 yield break;
             }
 
-            if (ragdoll != null && nview != null && nview.IsValid() && nview.IsOwner() && !WasLooted(nview))
+            if (ragdoll != null && nview != null && nview.IsValid() && nview.IsOwner() && !WasLooted(nview) && spawnLootMethod != null)
             {
                 Vector3 averageBodyPosition = ragdoll.GetAverageBodyPosition();
                 spawningLoot = true;
                 try
                 {
-                    Traverse.Create(ragdoll).Method("SpawnLoot", new object[] { averageBodyPosition }).GetValue();
+                    spawnLootArgs[0] = averageBodyPosition;
+                    spawnLootMethod.Invoke(ragdoll, spawnLootArgs);
                     MarkLooted(nview);
                 }
                 finally
                 {
                     spawningLoot = false;
+                    spawnLootArgs[0] = null;
                 }
             }
 
@@ -262,7 +314,7 @@ namespace InstantMonsterDrop
             yield return new WaitForSeconds(Mathf.Max(destroyDelay.Value - Mathf.Max(dropDelay.Value, 0f), 0f));
 
             float waited = 0f;
-            while (modEnabled.Value && ragdoll != null && nview != null && nview.IsValid() && waited < 30f)
+            while (ModEnabled && ragdoll != null && nview != null && nview.IsValid() && waited < 30f)
             {
                 if (!nview.IsOwner())
                     nview.ClaimOwnership();
