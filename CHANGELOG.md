@@ -1,3 +1,9 @@
+# v0.8.6
+- Fix `DestroyDelay`: cancel vanilla ragdoll `DestroyNow` timer, run corpse removal only on server/authority, and measure full stay time from death (respects pack `DestroyDelay = 30`)
+
+# v0.8.5
+- Optional `DisableCorpseDespawnSound` and `DisableCorpseDespawnParticles` (both default false; vanilla despawn VFX/SFX stay on unless you turn these on)
+
 # v0.8.4
 - Rechecked against Valheim 1.0.21 (Steam build 26249040); Ragdoll.SpawnLoot, DestroyNow, Player.AutoPickup, and EffectList.Create still match
 - Pickup range is applied on spawn and config change instead of every physics tick

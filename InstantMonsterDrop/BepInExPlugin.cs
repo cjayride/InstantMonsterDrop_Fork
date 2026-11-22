@@ -16,7 +16,7 @@ namespace InstantMonsterDrop
         TopLeft
     }
 
-    [BepInPlugin("cjayride.InstantMonsterDrop", "Instant Monster Drop", "0.8.4")]
+    [BepInPlugin("cjayride.InstantMonsterDrop", "Instant Monster Drop", "0.8.6")]
     public class BepInExPlugin : BaseUnityPlugin
     {
         internal const string LootedKey = "IMD_Looted";
@@ -31,6 +31,8 @@ namespace InstantMonsterDrop
         private static ConfigEntry<float> destroyDelay;
         private static ConfigEntry<float> autoPickupDelay;
         private static ConfigEntry<float> autoPickupRange;
+        private static ConfigEntry<bool> disableDespawnSound;
+        private static ConfigEntry<bool> disableDespawnParticles;
         private static ConfigEntry<bool> notificationEnabled;
         private static ConfigEntry<int> notificationX;
         private static ConfigEntry<int> notificationY;
@@ -64,6 +66,11 @@ namespace InstantMonsterDrop
         internal static Color TextColor = Color.white;
         internal static Color AmountColor = new Color(0.95f, 0.9f, 0.75f);
         internal static Color OutlineColor = Color.black;
+        internal static bool DisableDespawnSound;
+        internal static bool DisableDespawnParticles;
+        internal static float DestroyDelaySeconds = 60f;
+
+        private const float OwnershipClaimTimeout = 15f;
 
         private void Awake()
         {
@@ -73,6 +80,8 @@ namespace InstantMonsterDrop
             destroyDelay = Config.Bind<float>("General", "DestroyDelay", 60f, "Seconds the ragdoll stays on the ground before it is destroyed");
             autoPickupDelay = Config.Bind<float>("General", "AutoPickupDelay", 1f, "Seconds before dropped monster loot can be auto-picked up. 0 is vanilla auto-pickup timing");
             autoPickupRange = Config.Bind<float>("General", "AutoPickupRange", 2.5f, "Auto-pickup radius in meters");
+            disableDespawnSound = Config.Bind<bool>("General", "DisableCorpseDespawnSound", false, "If true, mute the corpse despawn sound. Off by default.");
+            disableDespawnParticles = Config.Bind<bool>("General", "DisableCorpseDespawnParticles", false, "If true, hide the corpse despawn particles. Off by default.");
 
             notificationEnabled = Config.Bind<bool>("Notification", "Enabled", true, "Show the stacked loot window. Disable to restore vanilla one-at-a-time pickup messages");
             notificationAnchor = Config.Bind<NotificationAnchor>("Notification", "Anchor", NotificationAnchor.BottomRight, "Corner of the screen the window is offset from");
@@ -91,7 +100,11 @@ namespace InstantMonsterDrop
 
             CacheSettings();
             modEnabled.SettingChanged += OnSettingsChanged;
+            dropDelay.SettingChanged += OnSettingsChanged;
+            destroyDelay.SettingChanged += OnSettingsChanged;
             autoPickupRange.SettingChanged += OnPickupRangeChanged;
+            disableDespawnSound.SettingChanged += OnSettingsChanged;
+            disableDespawnParticles.SettingChanged += OnSettingsChanged;
             notificationEnabled.SettingChanged += OnSettingsChanged;
             notificationAnchor.SettingChanged += OnSettingsChanged;
             notificationX.SettingChanged += OnSettingsChanged;
@@ -142,6 +155,16 @@ namespace InstantMonsterDrop
             TextColor = notificationTextColor != null ? notificationTextColor.Value : Color.white;
             AmountColor = notificationAmountColor != null ? notificationAmountColor.Value : new Color(0.95f, 0.9f, 0.75f);
             OutlineColor = notificationOutlineColor != null ? notificationOutlineColor.Value : Color.black;
+            DisableDespawnSound = disableDespawnSound != null && disableDespawnSound.Value;
+            DisableDespawnParticles = disableDespawnParticles != null && disableDespawnParticles.Value;
+            DestroyDelaySeconds = destroyDelay != null ? Mathf.Max(0f, destroyDelay.Value) : 60f;
+        }
+
+        private static bool IsRagdollAuthority()
+        {
+            if (ZNet.instance == null)
+                return true;
+            return ZNet.instance.IsServer();
         }
 
         private static void ApplyPickupRange()
@@ -176,7 +199,10 @@ namespace InstantMonsterDrop
         {
             static void Postfix(Ragdoll __instance, ZNetView ___m_nview, EffectList ___m_removeEffect)
             {
-                if (!ZNetScene.instance)
+                if (!ZNetScene.instance || !ModEnabled)
+                    return;
+                __instance.CancelInvoke("DestroyNow");
+                if (!IsRagdollAuthority())
                     return;
                 ScheduleRagdoll(__instance, ___m_nview, ___m_removeEffect);
             }
@@ -279,6 +305,7 @@ namespace InstantMonsterDrop
 
         private static IEnumerator DropNow(Ragdoll ragdoll, ZNetView nview, EffectList removeEffect, int id)
         {
+            float destroyAt = Time.time + DestroyDelaySeconds;
             if (dropDelay.Value >= 0)
                 yield return new WaitForSeconds(dropDelay.Value);
 
@@ -305,16 +332,18 @@ namespace InstantMonsterDrop
                 }
             }
 
+            float waitRemaining = Mathf.Max(0f, destroyAt - Time.time);
+            if (waitRemaining > 0f)
+                yield return new WaitForSeconds(waitRemaining);
+
             yield return context.StartCoroutine(DestroyNow(ragdoll, nview, removeEffect));
             scheduledRagdolls.Remove(id);
         }
 
         private static IEnumerator DestroyNow(Ragdoll ragdoll, ZNetView nview, EffectList m_removeEffect)
         {
-            yield return new WaitForSeconds(Mathf.Max(destroyDelay.Value - Mathf.Max(dropDelay.Value, 0f), 0f));
-
             float waited = 0f;
-            while (ModEnabled && ragdoll != null && nview != null && nview.IsValid() && waited < 30f)
+            while (ModEnabled && ragdoll != null && nview != null && nview.IsValid() && waited < OwnershipClaimTimeout)
             {
                 if (!nview.IsOwner())
                     nview.ClaimOwnership();
@@ -322,8 +351,7 @@ namespace InstantMonsterDrop
                 if (nview.IsOwner())
                 {
                     Vector3 averageBodyPosition = ragdoll.GetAverageBodyPosition();
-                    if (m_removeEffect != null)
-                        m_removeEffect.Create(averageBodyPosition, Quaternion.identity, null, 1f, -1, ZDOID.None);
+                    PlayRemoveEffect(m_removeEffect, averageBodyPosition);
                     if (ZNetScene.instance)
                         ZNetScene.instance.Destroy(ragdoll.gameObject);
                     yield break;
@@ -331,6 +359,59 @@ namespace InstantMonsterDrop
 
                 yield return new WaitForSeconds(0.5f);
                 waited += 0.5f;
+            }
+        }
+
+        private static void PlayRemoveEffect(EffectList effect, Vector3 position)
+        {
+            if (effect == null)
+                return;
+            if (DisableDespawnSound && DisableDespawnParticles)
+                return;
+
+            GameObject[] created = effect.Create(position, Quaternion.identity, null, 1f, -1, ZDOID.None);
+            if (created == null || (!DisableDespawnSound && !DisableDespawnParticles))
+                return;
+
+            for (int i = 0; i < created.Length; i++)
+            {
+                GameObject go = created[i];
+                if (go == null)
+                    continue;
+                if (DisableDespawnSound)
+                    Silence(go);
+                if (DisableDespawnParticles)
+                    StripParticles(go);
+            }
+        }
+
+        private static void Silence(GameObject go)
+        {
+            AudioSource[] sources = go.GetComponentsInChildren<AudioSource>(true);
+            for (int i = 0; i < sources.Length; i++)
+            {
+                AudioSource source = sources[i];
+                source.Stop();
+                source.mute = true;
+                source.volume = 0f;
+                source.enabled = false;
+            }
+
+            ZSFX[] sfx = go.GetComponentsInChildren<ZSFX>(true);
+            for (int i = 0; i < sfx.Length; i++)
+                sfx[i].enabled = false;
+        }
+
+        private static void StripParticles(GameObject go)
+        {
+            ParticleSystem[] systems = go.GetComponentsInChildren<ParticleSystem>(true);
+            for (int i = 0; i < systems.Length; i++)
+            {
+                ParticleSystem ps = systems[i];
+                ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                ParticleSystemRenderer renderer = ps.GetComponent<ParticleSystemRenderer>();
+                if (renderer != null)
+                    renderer.enabled = false;
             }
         }
 

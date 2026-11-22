@@ -53,6 +53,8 @@ Launch the game once to generate the configuration file:
 | `DestroyDelay` | `60` | Time before monster corpses are removed, in seconds. |
 | `AutoPickupDelay` | `1` | Delay before automatic pickup begins, in seconds. |
 | `AutoPickupRange` | `2.5` | Auto-pickup radius, in meters. |
+| `DisableCorpseDespawnSound` | `false` | Set to `true` to mute the corpse despawn sound. |
+| `DisableCorpseDespawnParticles` | `false` | Set to `true` to hide the corpse despawn particles. |
 
 ### 🖥️ Notification Window Settings
 
