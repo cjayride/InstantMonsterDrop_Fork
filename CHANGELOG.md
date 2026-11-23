@@ -1,3 +1,8 @@
+# v0.8.7
+- Dedicated multiplayer: loot and corpse despawn run on the corpse owner again (usually the killer's client), not only on the headless `IsServer()` process. Fixes empty corpses (nothing on the ground) and bodies that never despawned with 0.8.6.
+- Peers wait 5 seconds before claiming a corpse to despawn it, so machines do not steal ownership from each other.
+- If a corpse is removed and loot never spawned, spawn it then. Items already on the ground are unchanged.
+
 # v0.8.6
 - Fix `DestroyDelay`: cancel vanilla ragdoll `DestroyNow` timer, run corpse removal only on server/authority, and measure full stay time from death (respects pack `DestroyDelay = 30`)
 

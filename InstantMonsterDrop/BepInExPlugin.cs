@@ -16,7 +16,7 @@ namespace InstantMonsterDrop
         TopLeft
     }
 
-    [BepInPlugin("cjayride.InstantMonsterDrop", "Instant Monster Drop", "0.8.6")]
+    [BepInPlugin("cjayride.InstantMonsterDrop", "Instant Monster Drop", "0.8.7")]
     public class BepInExPlugin : BaseUnityPlugin
     {
         internal const string LootedKey = "IMD_Looted";
@@ -71,6 +71,7 @@ namespace InstantMonsterDrop
         internal static float DestroyDelaySeconds = 60f;
 
         private const float OwnershipClaimTimeout = 15f;
+        private const float OwnerGracePeriod = 5f;
 
         private void Awake()
         {
@@ -160,13 +161,6 @@ namespace InstantMonsterDrop
             DestroyDelaySeconds = destroyDelay != null ? Mathf.Max(0f, destroyDelay.Value) : 60f;
         }
 
-        private static bool IsRagdollAuthority()
-        {
-            if (ZNet.instance == null)
-                return true;
-            return ZNet.instance.IsServer();
-        }
-
         private static void ApplyPickupRange()
         {
             Player player = Player.m_localPlayer;
@@ -202,8 +196,6 @@ namespace InstantMonsterDrop
                 if (!ZNetScene.instance || !ModEnabled)
                     return;
                 __instance.CancelInvoke("DestroyNow");
-                if (!IsRagdollAuthority())
-                    return;
                 ScheduleRagdoll(__instance, ___m_nview, ___m_removeEffect);
             }
         }
@@ -315,22 +307,7 @@ namespace InstantMonsterDrop
                 yield break;
             }
 
-            if (ragdoll != null && nview != null && nview.IsValid() && nview.IsOwner() && !WasLooted(nview) && spawnLootMethod != null)
-            {
-                Vector3 averageBodyPosition = ragdoll.GetAverageBodyPosition();
-                spawningLoot = true;
-                try
-                {
-                    spawnLootArgs[0] = averageBodyPosition;
-                    spawnLootMethod.Invoke(ragdoll, spawnLootArgs);
-                    MarkLooted(nview);
-                }
-                finally
-                {
-                    spawningLoot = false;
-                    spawnLootArgs[0] = null;
-                }
-            }
+            TrySpawnLoot(ragdoll, nview);
 
             float waitRemaining = Mathf.Max(0f, destroyAt - Time.time);
             if (waitRemaining > 0f)
@@ -345,11 +322,12 @@ namespace InstantMonsterDrop
             float waited = 0f;
             while (ModEnabled && ragdoll != null && nview != null && nview.IsValid() && waited < OwnershipClaimTimeout)
             {
-                if (!nview.IsOwner())
+                if (!nview.IsOwner() && waited >= OwnerGracePeriod)
                     nview.ClaimOwnership();
 
                 if (nview.IsOwner())
                 {
+                    TrySpawnLoot(ragdoll, nview);
                     Vector3 averageBodyPosition = ragdoll.GetAverageBodyPosition();
                     PlayRemoveEffect(m_removeEffect, averageBodyPosition);
                     if (ZNetScene.instance)
@@ -412,6 +390,26 @@ namespace InstantMonsterDrop
                 ParticleSystemRenderer renderer = ps.GetComponent<ParticleSystemRenderer>();
                 if (renderer != null)
                     renderer.enabled = false;
+            }
+        }
+
+        private static void TrySpawnLoot(Ragdoll ragdoll, ZNetView nview)
+        {
+            if (ragdoll == null || nview == null || !nview.IsValid() || !nview.IsOwner() || WasLooted(nview) || spawnLootMethod == null)
+                return;
+
+            Vector3 averageBodyPosition = ragdoll.GetAverageBodyPosition();
+            spawningLoot = true;
+            try
+            {
+                spawnLootArgs[0] = averageBodyPosition;
+                spawnLootMethod.Invoke(ragdoll, spawnLootArgs);
+                MarkLooted(nview);
+            }
+            finally
+            {
+                spawningLoot = false;
+                spawnLootArgs[0] = null;
             }
         }
 

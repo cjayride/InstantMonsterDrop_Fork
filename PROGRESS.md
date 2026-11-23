@@ -1,19 +1,23 @@
-# InstantMonsterLootDrop — 0.8.5 despawn FX options
+# InstantMonsterLootDrop — 0.8.7 dedicated loot/despawn
 
 ## Goal
-Optional corpse despawn sound/particle suppression. Defaults remain vanilla (FX on).
+Fix 0.8.6 dedicated bug without adding per-frame work.
 
 ## Status
 Completed (compile verified). Not git committed.
 
-## Config (default false)
-- `DisableCorpseDespawnSound`
-- `DisableCorpseDespawnParticles`
+## Approach
+- Schedule drop/despawn wait on each peer that loads the ragdoll (same as 0.8.4). Idle WaitForSeconds only.
+- SpawnLoot / Destroy only if ZDO owner.
+- 5s grace before ClaimOwnership.
+- TrySpawnLoot again at despawn if loot never spawned.
 
-Both true: skip EffectList.Create. One true: create then mute AudioSource/ZSFX or stop ParticleSystems.
+## FPS
+No new FixedUpdate/Update patches. HUD still idle-disabled.
 
 ## Build
-Succeeded. DLL FileVersion 0.8.5.
+`dotnet build InstantMonsterDrop.sln -c Release` succeeded (0 warnings).
 
-**DLL:** `D:\AI-Agent-Projects\cjaycraft\Cjayride.InstantMonsterDrop\InstantMonsterDrop\bin\Release\net480\InstantMonsterDrop.dll`
-**Zip:** `D:\AI-Agent-Projects\cjaycraft\Cjayride.InstantMonsterDrop\dist\cjayride-InstantMonsterLootDrop-0.8.5.zip`
+**DLL:** `D:\AI-Agent-Projects\cjaycraft\Cjayride.InstantMonsterDrop\InstantMonsterDrop\bin\Release\net480\InstantMonsterDrop.dll` (FileVersion 0.8.7)
+
+**Zip:** `D:\AI-Agent-Projects\cjaycraft\Cjayride.InstantMonsterDrop\dist\cjayride-InstantMonsterLootDrop-0.8.7.zip`
